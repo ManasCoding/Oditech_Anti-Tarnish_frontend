@@ -20,7 +20,7 @@ const navItems = [
   { id: 'profile', label: 'My Profile', icon: UserCircle2 },
 ];
 
-const API = 'http://localhost:5000';
+const API = import.meta.env.VITE_API_URL;
 
 const Admin = () => {
   const navigate = useNavigate();

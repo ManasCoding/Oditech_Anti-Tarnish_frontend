@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, Edit3, Save, X, User, Mail, Phone, LogOut, ShoppingBag, Heart } from 'lucide-react';
 
-const API = 'http://localhost:5000';
+const API = import.meta.env.VITE_API_URL;
 
 const Profile = () => {
   const navigate = useNavigate();

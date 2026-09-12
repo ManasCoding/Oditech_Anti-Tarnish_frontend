@@ -10,7 +10,7 @@ const BestSellers = () => {
   useEffect(() => {
     const fetchBestSellers = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/products?bestSeller=true&limit=6');
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products?bestSeller=true&limit=6`);
         if (response.ok) {
           const data = await response.json();
           setBestSellers(data.products || []);

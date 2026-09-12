@@ -25,8 +25,8 @@ const Shop = () => {
     const fetchData = async () => {
       try {
         const [productsRes, categoriesRes] = await Promise.all([
-          fetch('http://localhost:5000/api/products?limit=100'),
-          fetch('http://localhost:5000/api/categories')
+          fetch(`${import.meta.env.VITE_API_URL}/api/products?limit=100`),
+          fetch(`${import.meta.env.VITE_API_URL}/api/categories`)
         ]);
         
         if (productsRes.ok) {

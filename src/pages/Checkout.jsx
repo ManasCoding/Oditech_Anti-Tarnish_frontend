@@ -21,7 +21,7 @@ const Checkout = () => {
       for (const item of staleItems) {
         try {
           // Try to fetch by slug (id field may be the slug or _id)
-          const res = await fetch(`http://localhost:5000/api/products/${item.id}`);
+          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/products/${item.id}`);
           if (res.ok) {
             const product = await res.json();
             // Patch the cart item's shippingCharge in place via the store
