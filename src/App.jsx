@@ -11,6 +11,7 @@ import Login from './pages/Login';
 import Admin from './pages/Admin';
 import Wishlist from './pages/Wishlist';
 import Profile from './pages/Profile';
+import Orders from './pages/Orders';
 import {
   AboutPage,
   ContactPage,
@@ -56,6 +57,7 @@ function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/login" element={<Login />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/orders" element={<Orders />} />
 
             {/* Footer static pages */}
             <Route path="/about" element={<AboutPage />} />

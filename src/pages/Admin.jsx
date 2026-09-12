@@ -42,6 +42,7 @@ const Admin = () => {
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
   
   const [loading, setLoading] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(false);
@@ -345,7 +346,7 @@ const Admin = () => {
     }
   };
 
-  const handleUpdateOrderStatus = async (orderId, newStatus) => {
+  const handleUpdateOrderStatus = async (orderId, updates) => {
     setUpdatingOrderId(orderId);
     try {
       const res = await fetch(`${API}/api/orders/${orderId}/status`, {
@@ -354,13 +355,15 @@ const Admin = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ orderStatus: newStatus })
+        body: JSON.stringify(updates)
       });
       if (res.ok) {
-        setOrders(prev => prev.map(o => o._id === orderId ? { ...o, orderStatus: newStatus } : o));
+        const updated = await res.json();
+        setOrders(prev => prev.map(o => o._id === orderId ? { ...o, ...updates } : o));
+        if (selectedOrder?._id === orderId) setSelectedOrder(prev => ({ ...prev, ...updates }));
       }
     } catch (error) {
-      console.error("Failed to update order status", error);
+      console.error("Failed to update order", error);
     } finally {
       setUpdatingOrderId(null);
     }
@@ -907,6 +910,109 @@ const Admin = () => {
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-2xl font-serif text-gray-800">Orders ({orders.length})</h2>
             </div>
+
+            {/* Order Detail Modal */}
+            {selectedOrder && (
+              <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setSelectedOrder(null)}>
+                <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+                  <div className="flex justify-between items-center p-6 border-b border-gray-100">
+                    <div>
+                      <h3 className="font-serif text-xl">Order Details</h3>
+                      <p className="text-xs text-gray-400 font-mono mt-0.5">#{selectedOrder._id.slice(-12).toUpperCase()}</p>
+                    </div>
+                    <button onClick={() => setSelectedOrder(null)} className="p-2 hover:bg-gray-100 rounded-xl transition-colors"><X className="w-5 h-5" /></button>
+                  </div>
+                  <div className="p-6 space-y-6">
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-600 mb-3">Items Ordered</h4>
+                      <div className="space-y-3">
+                        {(selectedOrder.items || []).map((item, i) => (
+                          <div key={i} className="flex items-center gap-3 bg-gray-50 rounded-xl p-3">
+                            {item.image && <img src={item.image} alt={item.name} className="w-12 h-12 rounded-lg object-cover shrink-0" />}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{item.name}</p>
+                              <p className="text-xs text-gray-400">Qty: {item.quantity} x Rs.{item.price?.toLocaleString()}</p>
+                            </div>
+                            <p className="text-sm font-semibold shrink-0">Rs.{((item.price || 0) * (item.quantity || 1)).toLocaleString()}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Shipping Address</p>
+                        <p className="text-sm font-medium">{selectedOrder.shippingAddress?.name}</p>
+                        <p className="text-xs text-gray-500">{selectedOrder.shippingAddress?.street}</p>
+                        <p className="text-xs text-gray-500">{selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.state} {selectedOrder.shippingAddress?.pincode}</p>
+                        <p className="text-xs text-gray-400 mt-1">{selectedOrder.shippingAddress?.phone}</p>
+                      </div>
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Payment Info</p>
+                        <p className="text-sm font-medium capitalize">{selectedOrder.paymentMethod === 'cod' ? 'Cash on Delivery' : selectedOrder.paymentMethod}</p>
+                        <p className="text-xs text-gray-500 mt-1">Subtotal: Rs.{(selectedOrder.subtotal || 0).toLocaleString()}</p>
+                        <p className="text-xs text-gray-500">Shipping: {selectedOrder.shipping === 0 ? 'FREE' : 'Rs.' + selectedOrder.shipping}</p>
+                        <p className="text-sm font-bold mt-1">Total: Rs.{(selectedOrder.total || 0).toLocaleString()}</p>
+                      </div>
+                    </div>
+                    <div className="bg-blue-50 border border-blue-100 rounded-xl p-5 space-y-4">
+                      <h4 className="text-sm font-semibold text-gray-700">Manage Order</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-500 mb-1.5">Order Status</label>
+                          <select
+                            value={selectedOrder.orderStatus}
+                            disabled={updatingOrderId === selectedOrder._id}
+                            onChange={(e) => handleUpdateOrderStatus(selectedOrder._id, { orderStatus: e.target.value })}
+                            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-gray-400 cursor-pointer"
+                          >
+                            {['placed','confirmed','shipped','delivered','cancelled'].map(s => (
+                              <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-500 mb-1.5">Payment Status</label>
+                          <select
+                            value={selectedOrder.paymentStatus}
+                            disabled={updatingOrderId === selectedOrder._id}
+                            onChange={(e) => handleUpdateOrderStatus(selectedOrder._id, { paymentStatus: e.target.value })}
+                            className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-gray-400 cursor-pointer"
+                          >
+                            {['pending','paid','failed'].map(s => (
+                              <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-500 mb-1.5">Tracking ID</label>
+                        <div className="flex gap-2">
+                          <input
+                            id="admin-tracking-input"
+                            type="text"
+                            defaultValue={selectedOrder.trackingId || ''}
+                            placeholder="e.g. INDIAPOST123456"
+                            className="flex-1 border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:border-gray-400"
+                          />
+                          <button
+                            type="button"
+                            disabled={updatingOrderId === selectedOrder._id}
+                            onClick={() => {
+                              const val = document.getElementById('admin-tracking-input')?.value || '';
+                              handleUpdateOrderStatus(selectedOrder._id, { trackingId: val });
+                            }}
+                            className="px-4 py-2.5 bg-[#1A1A1A] text-white text-sm font-medium rounded-lg hover:bg-black transition-colors disabled:opacity-50 whitespace-nowrap"
+                          >
+                            {updatingOrderId === selectedOrder._id ? 'Saving...' : 'Save'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm">
               {loadingOrders ? (
                 <div className="p-8 text-center text-gray-400">Loading orders...</div>
@@ -927,6 +1033,7 @@ const Admin = () => {
                         <th className="text-left px-6 py-3 text-gray-500 font-medium">Total</th>
                         <th className="text-left px-6 py-3 text-gray-500 font-medium">Payment</th>
                         <th className="text-left px-6 py-3 text-gray-500 font-medium">Status</th>
+                        <th className="text-left px-6 py-3 text-gray-500 font-medium">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
@@ -948,21 +1055,20 @@ const Admin = () => {
                             }`}>{order.paymentStatus}</span>
                           </td>
                           <td className="px-6 py-4">
-                            <select
-                              value={order.orderStatus}
-                              disabled={updatingOrderId === order._id}
-                              onChange={(e) => handleUpdateOrderStatus(order._id, e.target.value)}
-                              className={`text-xs border rounded-lg px-2 py-1.5 capitalize focus:outline-none cursor-pointer ${
-                                STATUS_COLORS[order.orderStatus] || 'bg-gray-100 text-gray-700'
-                              } ${updatingOrderId === order._id ? 'opacity-50' : ''}`}
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-medium capitalize ${STATUS_COLORS[order.orderStatus] || 'bg-gray-100 text-gray-700'}`}>
+                              {order.orderStatus}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <button
+                              onClick={() => setSelectedOrder(order)}
+                              className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-gray-100 hover:bg-[#1A1A1A] hover:text-white rounded-lg font-medium text-gray-700 transition-all"
                             >
-                              {['placed','confirmed','shipped','delivered','cancelled'].map(s => (
-                                <option key={s} value={s} className="bg-white text-gray-800">{s.charAt(0).toUpperCase() + s.slice(1)}</option>
-                              ))}
-                            </select>
+                              <Eye className="w-3 h-3" /> Manage
+                            </button>
                           </td>
                         </tr>
-                      ))}
+                      ))
                     </tbody>
                   </table>
                 </div>

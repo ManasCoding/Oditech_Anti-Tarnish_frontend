@@ -43,12 +43,21 @@ const BestSellers = () => {
             <Loader className="w-8 h-8 animate-spin text-[#1A1A1A]" />
           </div>
         ) : (
-          <div className="grid grid-rows-2 grid-flow-col gap-4 overflow-x-auto pb-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-            {bestSellers.map((product) => (
-              <div key={product._id} className="snap-start shrink-0 w-[200px] md:w-[240px] lg:w-[280px]">
-                <ProductCard product={product} />
-              </div>
-            ))}
+          <div className="flex flex-col gap-6">
+            <div className="flex overflow-x-auto gap-4 pb-2 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              {bestSellers.slice(0, Math.ceil(bestSellers.length / 2)).map((product) => (
+                <div key={product._id} className="snap-start shrink-0 w-[200px] md:w-[240px] lg:w-[280px]">
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </div>
+            <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              {bestSellers.slice(Math.ceil(bestSellers.length / 2)).map((product) => (
+                <div key={product._id} className="snap-start shrink-0 w-[200px] md:w-[240px] lg:w-[280px]">
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

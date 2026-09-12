@@ -1,16 +1,20 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { ShieldCheck, MapPin, Loader } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ShieldCheck, MapPin, Loader, CheckCircle2 } from 'lucide-react';
 import useCartStore from '../store/cartStore';
 
 const Checkout = () => {
-  const [paymentMethod, setPaymentMethod] = useState('upi');
+  const [paymentMethod, setPaymentMethod] = useState('cod');
   const [form, setForm] = useState({ name: '', email: '', mobile: '', address: '', city: '', state: '', pin: '' });
   const [fetchingLocation, setFetchingLocation] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState(false);
+  const navigate = useNavigate();
 
   const cartItems = useCartStore((s) => s.items);
   const updateQty = useCartStore((s) => s.updateQty);
   const addToCart = useCartStore((s) => s.addToCart);
+  const clearCart = useCartStore((s) => s.clearCart);
 
   // Patch stale cart items that are missing shippingCharge by fetching fresh data
   useEffect(() => {
@@ -98,13 +102,79 @@ const Checkout = () => {
     );
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert('Order placed! (Backend integration coming soon)');
+    const token = sessionStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const orderPayload = {
+        items: cartItems.map(item => ({
+          product: item.id,
+          name: item.name,
+          image: item.image,
+          price: item.price,
+          quantity: item.qty,
+        })),
+        shippingAddress: {
+          name: form.name,
+          email: form.email,
+          phone: form.mobile,
+          street: form.address,
+          city: form.city,
+          state: form.state,
+          pincode: form.pin,
+        },
+        paymentMethod,
+        subtotal,
+        discount: savings,
+        shipping,
+        total,
+      };
+
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(orderPayload),
+      });
+
+      if (res.ok) {
+        clearCart();
+        setOrderSuccess(true);
+        setTimeout(() => navigate('/orders'), 2500);
+      } else {
+        const data = await res.json();
+        alert(data.message || 'Failed to place order. Please try again.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Something went wrong. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-[var(--color-primary-cream)] py-12">
+      {/* Order Success Overlay */}
+      {orderSuccess && (
+        <div className="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center gap-5">
+          <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
+            <CheckCircle2 className="w-10 h-10 text-green-500" />
+          </div>
+          <div className="text-center">
+            <h2 className="text-2xl font-serif text-gray-800 mb-2">Order Placed Successfully!</h2>
+            <p className="text-gray-400 text-sm">Redirecting you to your orders...</p>
+          </div>
+          <div className="w-8 h-8 border-2 border-green-400 border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-serif mb-10">Checkout</h1>
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-10">
@@ -243,8 +313,16 @@ const Checkout = () => {
                   <span>₹{total.toLocaleString()}</span>
                 </div>
               </div>
-              <button type="submit" className="w-full py-4 bg-[#1A1A1A] text-white font-medium rounded hover:bg-black transition-colors">
-                Place Order
+              <button
+                type="submit"
+                disabled={submitting || cartItems.length === 0}
+                className="w-full py-4 bg-[#1A1A1A] text-white font-medium rounded hover:bg-black transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+              >
+                {submitting ? (
+                  <><Loader className="w-4 h-4 animate-spin" /> Placing Order...</>
+                ) : (
+                  'Place Order'
+                )}
               </button>
               <div className="flex items-center justify-center gap-2 mt-4 text-xs text-gray-500">
                 <ShieldCheck className="w-4 h-4" />

@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, User, Heart, ShoppingBag, Menu } from 'lucide-react';
-import { useState } from 'react';
+import { Search, User, Heart, ShoppingBag, Menu, Package, LogOut } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import useCartStore from '../store/cartStore';
 import useWishlistStore from '../store/wishlistStore';
 
@@ -39,6 +39,8 @@ const navLinks = [
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const items = useCartStore((s) => s.items);
   const totalItems = items.reduce((sum, i) => sum + i.qty, 0);
   const wishlistItems = useWishlistStore((s) => s.items.length);
@@ -49,6 +51,25 @@ const Navbar = () => {
   const firstWord = userName ? userName.trim().split(' ')[0] : null;
   const userAvatar = sessionStorage.getItem('userAvatar');
   const isLoggedIn = !!sessionStorage.getItem('token');
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setUserDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('userName');
+    sessionStorage.removeItem('userAvatar');
+    setUserDropdownOpen(false);
+    navigate('/');
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-[var(--color-primary-cream)] border-b border-[#E5E0D8]">
@@ -107,30 +128,61 @@ const Navbar = () => {
               </label>
             </div>
 
-            {/* User / Name / Avatar */}
-            <Link
-              to={isLoggedIn ? '/profile' : '/login'}
-              className="text-[var(--color-text-dark)] hover:text-[var(--color-accent-gold)] transition-colors hidden sm:flex items-center gap-1.5"
-            >
+            {/* User / Name / Avatar with Dropdown */}
+            <div className="relative hidden sm:block" ref={dropdownRef}>
               {isLoggedIn ? (
-                <>
+                <button
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  className="flex items-center gap-1.5 hover:text-[var(--color-accent-gold)] transition-colors"
+                >
                   {userAvatar ? (
-                    <img
-                      src={userAvatar}
-                      alt={firstWord || 'Profile'}
-                      className="w-8 h-8 rounded-full object-cover border border-gray-200"
-                    />
+                    <img src={userAvatar} alt={firstWord || 'Profile'} className="w-8 h-8 rounded-full object-cover border border-gray-200" />
                   ) : (
                     <span className="bg-[#1A1A1A] text-white text-xs font-semibold w-8 h-8 rounded-full flex items-center justify-center tracking-wide">
                       {firstWord ? firstWord.charAt(0).toUpperCase() : 'U'}
                     </span>
                   )}
                   <span className="text-sm font-medium text-[var(--color-text-dark)]">{firstWord}</span>
-                </>
+                </button>
               ) : (
-                <User className="w-5 h-5" strokeWidth={1.5} />
+                <Link to="/login" className="text-[var(--color-text-dark)] hover:text-[var(--color-accent-gold)] transition-colors">
+                  <User className="w-5 h-5" strokeWidth={1.5} />
+                </Link>
               )}
-            </Link>
+
+              {/* Dropdown Menu */}
+              {userDropdownOpen && isLoggedIn && (
+                <div className="absolute right-0 top-full mt-3 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="px-4 py-2 border-b border-gray-50 mb-1">
+                    <p className="text-xs text-gray-400">Signed in as</p>
+                    <p className="text-sm font-semibold text-gray-800 truncate">{userName}</p>
+                  </div>
+                  <button
+                    onClick={() => { setUserDropdownOpen(false); navigate('/profile'); }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <User className="w-4 h-4 text-gray-400" />
+                    My Profile
+                  </button>
+                  <button
+                    onClick={() => { setUserDropdownOpen(false); navigate('/orders'); }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <Package className="w-4 h-4 text-gray-400" />
+                    My Orders
+                  </button>
+                  <div className="border-t border-gray-50 mt-1 pt-1">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Wishlist */}
             <Link to="/wishlist" className="text-[var(--color-text-dark)] hover:text-[var(--color-accent-gold)] transition-colors hidden sm:block relative">
@@ -218,6 +270,14 @@ const Navbar = () => {
                   <User className="w-5 h-5" />
                 )}
                 <span className="text-xs mt-1">{firstWord || 'Account'}</span>
+              </Link>
+              <Link 
+                to="/orders" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex flex-col items-center text-[var(--color-text-muted)] hover:text-[var(--color-text-dark)] transition-colors"
+              >
+                <Package className="w-5 h-5" />
+                <span className="text-xs mt-1">Orders</span>
               </Link>
               <Link 
                 to="/wishlist" 
