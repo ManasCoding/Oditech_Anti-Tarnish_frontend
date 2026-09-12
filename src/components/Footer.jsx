@@ -52,21 +52,21 @@ const Footer = () => {
             <div className="flex items-center space-x-3">
               <span className="text-sm font-medium mr-2">Follow Us</span>
               {/* Instagram */}
-              <a href="#" className="hover:scale-110 transition-transform">
+              <div className="hover:scale-110 transition-transform">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="Instagram" className="w-6 h-6" />
-              </a>
+              </div>
               {/* Facebook */}
-              <a href="#" className="hover:scale-110 transition-transform">
+              <div className="hover:scale-110 transition-transform">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png" alt="Facebook" className="w-6 h-6" />
-              </a>
+              </div>
               {/* X / Twitter */}
-              <a href="#" className="hover:scale-110 transition-transform">
+              <div className="hover:scale-110 transition-transform">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/c/ce/X_logo_2023.svg" alt="X" className="w-5 h-5 ml-1" />
-              </a>
+              </div>
               {/* YouTube */}
-              <a href="#" className="hover:scale-110 transition-transform ml-1">
+              <div className="hover:scale-110 transition-transform ml-1">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg" alt="YouTube" className="w-7 h-5" />
-              </a>
+              </div>
             </div>
           </div>
 

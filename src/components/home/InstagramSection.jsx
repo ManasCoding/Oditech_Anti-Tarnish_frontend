@@ -36,11 +36,8 @@ const InstagramSection = () => {
 
         <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
           {images.map((img, i) => (
-            <a
+            <div
               key={i}
-              href="https://instagram.com"
-              target="_blank"
-              rel="noreferrer"
               className="group block aspect-square overflow-hidden rounded-xl bg-[var(--color-primary-beige)]"
             >
               <img
@@ -49,7 +46,7 @@ const InstagramSection = () => {
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 loading="lazy"
               />
-            </a>
+            </div>
           ))}
         </div>
       </div>
