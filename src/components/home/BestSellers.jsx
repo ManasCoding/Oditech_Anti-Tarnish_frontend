@@ -10,7 +10,7 @@ const BestSellers = () => {
   useEffect(() => {
     const fetchBestSellers = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products?limit=10`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products?limit=20`);
         if (response.ok) {
           const data = await response.json();
           setBestSellers(data.products || []);
@@ -43,7 +43,7 @@ const BestSellers = () => {
             <Loader className="w-8 h-8 animate-spin text-[#1A1A1A]" />
           </div>
         ) : (
-          <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <div className="grid grid-rows-2 grid-flow-col gap-4 overflow-x-auto pb-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {bestSellers.map((product) => (
               <div key={product._id} className="snap-start shrink-0 w-[200px] md:w-[240px] lg:w-[280px]">
                 <ProductCard product={product} />

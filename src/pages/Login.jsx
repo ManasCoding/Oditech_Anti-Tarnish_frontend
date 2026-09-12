@@ -25,9 +25,9 @@ const Login = () => {
             alert('Access denied. You are not an admin.');
             return;
           }
-          if (data.token) localStorage.setItem('token', data.token);
-          if (data.name) localStorage.setItem('userName', data.name);
-          if (data.profileImage) localStorage.setItem('userAvatar', data.profileImage);
+          if (data.token) sessionStorage.setItem('token', data.token);
+          if (data.name) sessionStorage.setItem('userName', data.name);
+          if (data.profileImage) sessionStorage.setItem('userAvatar', data.profileImage);
           sessionStorage.setItem('isAdminAuthenticated', 'true');
           navigate('/admin');
         } else {
@@ -49,9 +49,9 @@ const Login = () => {
       const data = await response.json();
       
       if (response.ok) {
-        if (data.token) localStorage.setItem('token', data.token);
-        if (data.name) localStorage.setItem('userName', data.name);
-        if (data.profileImage) localStorage.setItem('userAvatar', data.profileImage);
+        if (data.token) sessionStorage.setItem('token', data.token);
+        if (data.name) sessionStorage.setItem('userName', data.name);
+        if (data.profileImage) sessionStorage.setItem('userAvatar', data.profileImage);
         navigate('/');
       } else {
         alert(`Error: ${data.message || 'Something went wrong'}`);

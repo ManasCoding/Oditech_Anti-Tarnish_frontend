@@ -44,11 +44,11 @@ const Navbar = () => {
   const wishlistItems = useWishlistStore((s) => s.items.length);
   const navigate = useNavigate();
 
-  // Get first word of user's name from localStorage (saved on login/register)
-  const userName = localStorage.getItem('userName');
+  // Get first word of user's name from sessionStorage (saved on login/register)
+  const userName = sessionStorage.getItem('userName');
   const firstWord = userName ? userName.trim().split(' ')[0] : null;
-  const userAvatar = localStorage.getItem('userAvatar');
-  const isLoggedIn = !!localStorage.getItem('token');
+  const userAvatar = sessionStorage.getItem('userAvatar');
+  const isLoggedIn = !!sessionStorage.getItem('token');
 
   return (
     <header className="sticky top-0 z-50 bg-[var(--color-primary-cream)] border-b border-[#E5E0D8]">

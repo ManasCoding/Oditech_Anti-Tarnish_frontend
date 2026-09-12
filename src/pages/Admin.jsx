@@ -76,7 +76,7 @@ const Admin = () => {
   const [savingProduct, setSavingProduct] = useState(false);
 
   // Auth check
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   const isAdminAuthenticated = sessionStorage.getItem('isAdminAuthenticated') === 'true';
 
   useEffect(() => {
@@ -253,7 +253,7 @@ const Admin = () => {
         body: JSON.stringify(profileForm)
       });
       if (res.ok) {
-        // Re-fetch from DB to keep state in sync — no localStorage
+        // Re-fetch from DB to keep state in sync — no sessionStorage
         await fetchAdminProfile();
         setProfileSuccess(true);
         setTimeout(() => setProfileSuccess(false), 3000);
@@ -278,7 +278,7 @@ const Admin = () => {
         body: fd
       });
       if (res.ok) {
-        // Re-fetch from DB to keep state in sync — no localStorage
+        // Re-fetch from DB to keep state in sync — no sessionStorage
         await fetchAdminProfile();
       }
     } catch (err) {

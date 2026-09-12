@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Heart, Star, ShieldCheck, Truck, RefreshCcw, Minus, Plus, ShoppingBag, Check } from 'lucide-react';
 import useCartStore from '../store/cartStore';
 import useWishlistStore from '../store/wishlistStore';
+import ProductCard from '../components/ProductCard';
 
 const accordion = [
   { id: 'desc', label: 'Description' },
@@ -31,6 +32,7 @@ const ProductDetail = () => {
   const [comment, setComment] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
   const [alreadyReviewed, setAlreadyReviewed] = useState(false);
+  const [relatedProducts, setRelatedProducts] = useState([]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -59,7 +61,7 @@ const ProductDetail = () => {
             const data = await response.json();
             setReviews(data);
             // Check if logged-in user already submitted a review
-            const userName = localStorage.getItem('userName');
+            const userName = sessionStorage.getItem('userName');
             if (userName) {
               const myReview = data.find(r => r.user?.name === userName);
               if (myReview) setAlreadyReviewed(true);
@@ -70,6 +72,24 @@ const ProductDetail = () => {
         }
       };
       fetchReviews();
+    }
+  }, [product]);
+
+  useEffect(() => {
+    if (product?.category?._id) {
+      const fetchRelatedProducts = async () => {
+        try {
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/api/products?category=${product.category._id}&limit=10`);
+          if (response.ok) {
+            const data = await response.json();
+            const filtered = data.products.filter(p => p._id !== product._id);
+            setRelatedProducts(filtered);
+          }
+        } catch (error) {
+          console.error("Failed to fetch related products:", error);
+        }
+      };
+      fetchRelatedProducts();
     }
   }, [product]);
 
@@ -96,7 +116,7 @@ const ProductDetail = () => {
   const isInCart = cartItems.some(item => item.id === product._id);
 
   const handleAddToCart = () => {
-    const isLoggedIn = !!localStorage.getItem('token');
+    const isLoggedIn = !!sessionStorage.getItem('token');
     if (!isLoggedIn) {
       navigate('/login');
       return;
@@ -120,7 +140,7 @@ const ProductDetail = () => {
   };
 
   const handleWishlistToggle = () => {
-    const isLoggedIn = !!localStorage.getItem('token');
+    const isLoggedIn = !!sessionStorage.getItem('token');
     if (!isLoggedIn) {
       navigate('/login');
       return;
@@ -135,7 +155,7 @@ const ProductDetail = () => {
   };
 
   const handleBuyNow = () => {
-    const isLoggedIn = !!localStorage.getItem('token');
+    const isLoggedIn = !!sessionStorage.getItem('token');
     if (!isLoggedIn) {
       navigate('/login');
       return;
@@ -146,7 +166,7 @@ const ProductDetail = () => {
 
   const submitReview = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (!token) {
       navigate('/login');
       return;
@@ -349,8 +369,22 @@ const ProductDetail = () => {
           </div>
         </div>
 
+        {/* Related Products Section */}
+        {relatedProducts.length > 0 && (
+          <div className="mt-16 border-t border-gray-100 pt-10">
+            <h2 className="text-2xl font-serif text-[var(--color-text-dark)] mb-6">Related Products</h2>
+            <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              {relatedProducts.map((p) => (
+                <div key={p._id} className="snap-start shrink-0 w-[200px] md:w-[240px]">
+                  <ProductCard product={p} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Reviews Section */}
-        <div className="mt-16">
+        <div className="mt-16 border-t border-gray-100 pt-10">
           <h2 className="text-2xl font-serif text-[var(--color-text-dark)] mb-6">Customer Reviews</h2>
 
           {/* Overall Rating Summary */}

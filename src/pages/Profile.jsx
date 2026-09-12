@@ -18,7 +18,7 @@ const Profile = () => {
   const [success, setSuccess] = useState('');
   const [previewImg, setPreviewImg] = useState(null);
 
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
 
   useEffect(() => {
     if (!token) {
@@ -60,7 +60,7 @@ const Profile = () => {
       const data = await res.json();
       if (res.ok) {
         setUser(data);
-        localStorage.setItem('userName', data.name);
+        sessionStorage.setItem('userName', data.name);
         setSuccess('Profile updated successfully!');
         setEditing(false);
         setTimeout(() => setSuccess(''), 3000);
@@ -96,7 +96,7 @@ const Profile = () => {
       if (res.ok) {
         setUser(data);
         setPreviewImg(data.profileImage);
-        localStorage.setItem('userAvatar', data.profileImage);
+        sessionStorage.setItem('userAvatar', data.profileImage);
         setSuccess('Profile photo updated!');
         setTimeout(() => setSuccess(''), 3000);
       } else {
@@ -112,9 +112,9 @@ const Profile = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userName');
-    localStorage.removeItem('userAvatar');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('userName');
+    sessionStorage.removeItem('userAvatar');
     navigate('/login');
   };
 

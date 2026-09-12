@@ -17,7 +17,7 @@ const ProductCard = ({ product }) => {
   const isInCart = cartItems.some(item => item.id === product._id);
 
   const handleAddToCart = () => {
-    const isLoggedIn = !!localStorage.getItem('token');
+    const isLoggedIn = !!sessionStorage.getItem('token');
     if (!isLoggedIn) {
       navigate('/login');
       return;
@@ -66,7 +66,7 @@ const ProductCard = ({ product }) => {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            const isLoggedIn = !!localStorage.getItem('token');
+            const isLoggedIn = !!sessionStorage.getItem('token');
             if (!isLoggedIn) {
               navigate('/login');
               return;
@@ -95,8 +95,8 @@ const ProductCard = ({ product }) => {
 
         <div className="flex items-center gap-1 mb-3 text-xs text-gray-500">
           <Star className="w-3.5 h-3.5 fill-[#EAB308] text-[#EAB308]" />
-          <span className="font-medium text-gray-700">{product.rating || '5.0'}</span>
-          <span>({product.reviewCount || 10})</span>
+          <span className="font-medium text-gray-700">{product.rating || '0'}</span>
+          <span>({product.reviewCount || 0})</span>
         </div>
 
         <div className="flex items-center gap-2 mb-4">
