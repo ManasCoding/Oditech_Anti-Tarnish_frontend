@@ -22,6 +22,7 @@ import {
   TermsPage,
   PrivacyPage,
 } from './pages/StaticPages';
+import TryOnModal from './components/tryon/TryOnModal';
 
 // Layout with Navbar + Footer
 const MainLayout = () => (
@@ -38,6 +39,7 @@ function App() {
   return (
     <Router>
       <ScrollToTop />
+      <TryOnModal />
       <div className="flex flex-col min-h-screen">
         <Routes>
           {/* Admin — no navbar/footer */}

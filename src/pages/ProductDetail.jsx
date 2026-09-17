@@ -4,7 +4,7 @@ import { Heart, Star, ShieldCheck, Truck, RefreshCcw, Minus, Plus, ShoppingBag, 
 import useCartStore from '../store/cartStore';
 import useWishlistStore from '../store/wishlistStore';
 import ProductCard from '../components/ProductCard';
-
+import TryOnButton from '../components/tryon/TryOnButton';
 const accordion = [
   { id: 'desc', label: 'Description' },
   { id: 'mat', label: 'Material' },
@@ -323,6 +323,7 @@ const ProductDetail = () => {
               >
                 Buy it Now
               </button>
+              <TryOnButton product={product} className="flex-1 py-3" />
               <button
                 onClick={handleWishlistToggle}
                 className={`aspect-square py-3 px-3 shrink-0 border transition-colors flex items-center justify-center ${

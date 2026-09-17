@@ -3,7 +3,7 @@ import { Heart, Star, ShoppingBag, Check } from 'lucide-react';
 import { useState } from 'react';
 import useCartStore from '../store/cartStore';
 import useWishlistStore from '../store/wishlistStore';
-
+import TryOnButton from './tryon/TryOnButton';
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
   const addToCart = useCartStore((s) => s.addToCart);
@@ -106,29 +106,33 @@ const ProductCard = ({ product }) => {
           )}
         </div>
 
-        <button
-          onClick={handleAddToCart}
-          className={`mt-auto w-full py-2.5 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-2 ${
-            isInCart ? 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100' : added ? 'bg-green-600 text-white' : 'bg-[#1A1A1A] text-white hover:bg-[#C69C6D]'
-          }`}
-        >
-          {isInCart ? (
-            <>
-              <Check className="w-4 h-4" />
-              Go to Cart
-            </>
-          ) : added ? (
-            <>
-              <Check className="w-4 h-4" />
-              Added!
-            </>
-          ) : (
-            <>
-              <ShoppingBag className="w-4 h-4" />
-              Add to Cart
-            </>
-          )}
-        </button>
+        <div className="mt-auto flex flex-col gap-2">
+          <button
+            onClick={handleAddToCart}
+            className={`w-full py-2.5 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center gap-2 ${
+              isInCart ? 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100' : added ? 'bg-green-600 text-white' : 'bg-[#1A1A1A] text-white hover:bg-[#C69C6D]'
+            }`}
+          >
+            {isInCart ? (
+              <>
+                <Check className="w-4 h-4" />
+                Go to Cart
+              </>
+            ) : added ? (
+              <>
+                <Check className="w-4 h-4" />
+                Added!
+              </>
+            ) : (
+              <>
+                <ShoppingBag className="w-4 h-4" />
+                Add to Cart
+              </>
+            )}
+          </button>
+          
+          <TryOnButton product={product} className="w-full" />
+        </div>
       </div>
     </div>
   );

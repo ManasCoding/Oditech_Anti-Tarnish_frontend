@@ -5,13 +5,16 @@ import WhyChoose from '../components/home/WhyChoose';
 import NewArrivalsBanner from '../components/home/NewArrivalsBanner';
 import Reviews from '../components/home/Reviews';
 import InstagramSection from '../components/home/InstagramSection';
-
+import VirtualTryOnSection from '../components/tryon/VirtualTryOnSection';
+import TryOnBanner from '../components/home/TryOnBanner';
 const Home = () => {
   return (
     <div>
       <Hero />
       <ShopByCategory />
+      <VirtualTryOnSection />
       <BestSellers />
+      <TryOnBanner />
       <WhyChoose />
       <NewArrivalsBanner />
       <Reviews />
